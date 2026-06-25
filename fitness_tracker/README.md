@@ -1,12 +1,28 @@
-# fitness_tracker
+# FitTrack Pro
 
-A new Flutter project.
+Offline-First Fitness Tracker App
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Activity Tracking
+- Step Counter
+- Calories Tracking
+- Workout History
+- Statistics Dashboard
+- Offline SQLite Database
+- Clean Architecture
+- Riverpod State Management
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
+
+- Flutter
+- Riverpod
+- Drift (SQLite)
+- GoRouter
+
+## Project Status
+
+In Development
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
