@@ -1,0 +1,37 @@
+import 'package:go_router/go_router.dart';
+import '../widgets/placeholder_screen.dart';
+import '../constants/app_routes.dart';
+
+final GoRouter appRouter = GoRouter(
+  initialLocation: AppRoutes.splash,
+  routes: [
+    GoRoute(
+      path: AppRoutes.splash,
+      builder: (context, state) => const PlaceholderScreen(title: 'Splash'),
+    ),
+    GoRoute(
+      path: AppRoutes.onboarding,
+      builder: (context, state) => const PlaceholderScreen(title: 'Onboarding'),
+    ),
+    GoRoute(
+      path: AppRoutes.dashboard,
+      builder: (context, state) => const PlaceholderScreen(title: 'Dashboard'),
+    ),
+    GoRoute(
+      path: AppRoutes.history,
+      builder: (context, state) => const PlaceholderScreen(title: 'History'),
+    ),
+    GoRoute(
+      path: AppRoutes.statistics,
+      builder: (context, state) => const PlaceholderScreen(title: 'Statistics'),
+    ),
+    GoRoute(
+      path: AppRoutes.profile,
+      builder: (context, state) => const PlaceholderScreen(title: 'Profile'),
+    ),
+    GoRoute(
+      path: AppRoutes.addActivity,
+      builder: (context, state) => const PlaceholderScreen(title: 'Add Activity'),
+    ),
+  ],
+);
