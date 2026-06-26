@@ -16,9 +16,7 @@ class UserProfileTable extends Table {
   IntColumn get dailyStepGoal =>
       integer().withDefault(const Constant(10000))();
 
-  DateTimeColumn get createdAt => dateTime()
-      .withDefault(const CustomExpression('CURRENT_TIMESTAMP'))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
-  DateTimeColumn get updatedAt => dateTime()
-      .withDefault(const CustomExpression('CURRENT_TIMESTAMP'))();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

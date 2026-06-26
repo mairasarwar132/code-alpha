@@ -59,4 +59,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
     _validateProfile(entry);
     await _database.updateProfile(entry);
   }
+
+  @override
+  Future<void> deleteProfile() async {
+    await _database.deleteProfile();
+  }
 }

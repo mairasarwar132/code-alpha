@@ -13,4 +13,7 @@ abstract class ProfileRepository {
 
   /// Update the existing user profile row.
   Future<void> updateProfile(UserProfileTableCompanion entry);
+
+  /// Permanently delete the user profile.
+  Future<void> deleteProfile();
 }

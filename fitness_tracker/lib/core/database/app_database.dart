@@ -16,7 +16,7 @@ part 'app_database.g.dart';
 /// is opened only on first access.
 @DriftDatabase(tables: [ActivitiesTable, UserProfileTable])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
   int get schemaVersion => 1;
@@ -72,6 +72,9 @@ class AppDatabase extends _$AppDatabase {
   /// Update the profile row.
   Future<bool> updateProfile(UserProfileTableCompanion entry) =>
       update(userProfileTable).replace(entry);
+
+  /// Delete the profile row.
+  Future<int> deleteProfile() => delete(userProfileTable).go();
 }
 
 /// Opens a [LazyDatabase] stored in the application documents directory.

@@ -639,7 +639,7 @@ class $UserProfileTableTable extends UserProfileTable
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: const CustomExpression('CURRENT_TIMESTAMP'),
+    defaultValue: currentDateAndTime,
   );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
@@ -651,7 +651,7 @@ class $UserProfileTableTable extends UserProfileTable
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: const CustomExpression('CURRENT_TIMESTAMP'),
+    defaultValue: currentDateAndTime,
   );
   @override
   List<GeneratedColumn> get $columns => [
