@@ -7,7 +7,11 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const ProviderScope(child: FitTrackApp()));
 
-    // Verify that the app launches and shows the splash screen placeholder.
-    expect(find.text('Splash Screen'), findsOneWidget);
+    // Verify that the app launches and shows the splash screen.
+    expect(find.text('FitTrack Pro'), findsOneWidget);
+
+    // Advance the timer by 3 seconds to complete splash screen navigation and prevent timer leaks
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pump(const Duration(milliseconds: 500));
   });
 }

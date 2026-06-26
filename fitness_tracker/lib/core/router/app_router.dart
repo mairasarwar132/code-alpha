@@ -1,13 +1,14 @@
 import 'package:go_router/go_router.dart';
 import '../widgets/placeholder_screen.dart';
 import '../constants/app_routes.dart';
+import '../../features/splash/presentation/pages/splash_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
-      builder: (context, state) => const PlaceholderScreen(title: 'Splash'),
+      builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
       path: AppRoutes.onboarding,
