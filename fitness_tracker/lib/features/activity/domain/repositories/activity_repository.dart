@@ -17,7 +17,7 @@ abstract class ActivityRepository {
   /// Permanently remove the activity identified by [id].
   Future<void> deleteActivity(int id);
 
-  /// Return activities whose recorded [dateTime] falls between [start]
+  /// Return activities whose recorded [activityDateTime] falls between [start]
   /// and [end] (inclusive), newest first.
   Future<List<ActivitiesTableData>> getActivitiesByDateRange(
     DateTime start,

@@ -33,19 +33,19 @@ class AppDatabase extends _$AppDatabase {
   Future<List<ActivitiesTableData>> getAllActivities() =>
       (select(activitiesTable)
             ..orderBy(
-              [(t) => OrderingTerm.desc(t.dateTime)],
+              [(t) => OrderingTerm.desc(t.activityDateTime)],
             ))
           .get();
 
-  /// Return activities whose [dateTime] falls within [start]..[end].
+  /// Return activities whose [activityDateTime] falls within [start]..[end].
   Future<List<ActivitiesTableData>> getActivitiesByDateRange(
     DateTime start,
     DateTime end,
   ) =>
       (select(activitiesTable)
-            ..where((t) => t.dateTime.isBetweenValues(start, end))
+            ..where((t) => t.activityDateTime.isBetweenValues(start, end))
             ..orderBy(
-              [(t) => OrderingTerm.desc(t.dateTime)],
+              [(t) => OrderingTerm.desc(t.activityDateTime)],
             ))
           .get();
 
