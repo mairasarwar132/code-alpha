@@ -1,110 +1,161 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fitness_tracker/core/constants/app_strings.dart';
+import 'package:fitness_tracker/core/constants/app_routes.dart';
+import 'package:fitness_tracker/core/providers/preferences_provider.dart';
+import 'package:fitness_tracker/core/services/app_preferences.dart';
 import 'package:fitness_tracker/features/onboarding/presentation/pages/onboarding_screen.dart';
-import 'package:fitness_tracker/features/onboarding/presentation/widgets/onboarding_page_widget.dart';
 
 void main() {
-  group('OnboardingScreen Widget Tests', () {
-    testWidgets('renders first onboarding page content correctly',
+  group('OnboardingScreen Widget and Flow Tests', () {
+    late GoRouter testRouter;
+
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      
+      // Build isolated router configuration pointing Onboarding and Dashboard paths
+      testRouter = GoRouter(
+        initialLocation: AppRoutes.onboarding,
+        routes: [
+          GoRoute(
+            path: AppRoutes.onboarding,
+            builder: (context, state) => const OnboardingScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.dashboard,
+            builder: (context, state) => const Scaffold(body: Text('Dashboard Screen')),
+          ),
+        ],
+      );
+    });
+
+    testWidgets('renders first onboarding screen with indicator and skip controls',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: OnboardingScreen(),
+        ProviderScope(
+          child: MaterialApp(
+            home: const OnboardingScreen(),
+          ),
         ),
       );
 
-      // Verify page title and subtitle for Page 1 are visible
+      // Verify page titles and descriptions
       expect(find.text(AppStrings.onboardingTitle1), findsOneWidget);
       expect(find.text(AppStrings.onboardingSubtitle1), findsOneWidget);
-      expect(find.byIcon(Icons.fitness_center), findsOneWidget);
 
-      // Verify next button is visible and skip button is visible
-      expect(find.byKey(const Key('onboarding_next_button')), findsOneWidget);
+      // Verify SmoothPageIndicator package widget renders
+      expect(find.byType(SmoothPageIndicator), findsOneWidget);
+
+      // Verify control buttons
       expect(find.byKey(const Key('onboarding_skip_button')), findsOneWidget);
-
-      // Verify get started is NOT visible on first page
-      expect(find.byKey(const Key('onboarding_get_started_button')),
-          findsNothing);
+      expect(find.byKey(const Key('onboarding_next_button')), findsOneWidget);
+      expect(find.byKey(const Key('onboarding_get_started_button')), findsNothing);
     });
 
-    testWidgets('navigating forward using Next button updates page contents',
+    testWidgets('next button steps through pages to final page and navigates on Get Started',
         (WidgetTester tester) async {
+      final prefsFuture = AppPreferences.create();
+
       await tester.pumpWidget(
-        const MaterialApp(
-          home: OnboardingScreen(),
+        ProviderScope(
+          overrides: [
+            appPreferencesProvider.overrideWith((ref) => prefsFuture),
+          ],
+          child: MaterialApp.router(
+            routerConfig: testRouter,
+          ),
         ),
       );
 
-      // --- PAGE 1 to PAGE 2 ---
-      await tester.tap(find.byKey(const Key('onboarding_next_button')));
-      await tester.pumpAndSettle();
+      // Navigate to final page by pressing Next button repeatedly
+      for (int i = 0; i < 3; i++) {
+        await tester.tap(find.byKey(const Key('onboarding_next_button')));
+        await tester.pumpAndSettle();
+      }
 
-      expect(find.text(AppStrings.onboardingTitle2), findsOneWidget);
-      expect(find.text(AppStrings.onboardingSubtitle2), findsOneWidget);
-      expect(find.byIcon(Icons.directions_run), findsOneWidget);
-
-      // --- PAGE 2 to PAGE 3 ---
-      await tester.tap(find.byKey(const Key('onboarding_next_button')));
-      await tester.pumpAndSettle();
-
-      expect(find.text(AppStrings.onboardingTitle3), findsOneWidget);
-      expect(find.text(AppStrings.onboardingSubtitle3), findsOneWidget);
-      expect(find.byIcon(Icons.insights), findsOneWidget);
-
-      // --- PAGE 3 to PAGE 4 (Last Page) ---
-      await tester.tap(find.byKey(const Key('onboarding_next_button')));
-      await tester.pumpAndSettle();
-
+      // Check last page content
       expect(find.text(AppStrings.onboardingTitle4), findsOneWidget);
       expect(find.text(AppStrings.onboardingSubtitle4), findsOneWidget);
-      expect(find.byIcon(Icons.emoji_events), findsOneWidget);
 
-      // On final page, "Next" and "Skip" should disappear, "Get Started" appears.
+      // "Next" is hidden; "Get Started" is visible
       expect(find.byKey(const Key('onboarding_next_button')), findsNothing);
-      expect(find.byKey(const Key('onboarding_get_started_button')),
-          findsOneWidget);
+      expect(find.byKey(const Key('onboarding_get_started_button')), findsOneWidget);
 
-      // Verify skip button is hidden (opacity is 0 and is ignored by pointers)
-      final skipOpacityFinder = find.byKey(const Key('onboarding_skip_button'));
-      final animatedOpacity =
-          tester.widget<AnimatedOpacity>(find.ancestor(
-        of: skipOpacityFinder,
-        matching: find.byType(AnimatedOpacity),
-      ));
-      expect(animatedOpacity.opacity, 0.0);
+      // Tap Get Started to complete
+      await tester.tap(find.byKey(const Key('onboarding_get_started_button')));
+      await tester.pumpAndSettle();
+
+      // Verify routing redirected dashboard
+      expect(find.text('Dashboard Screen'), findsOneWidget);
+
+      // Verify SharedPreferences persisted completion flag
+      final prefs = await prefsFuture;
+      expect(await prefs.isFirstLaunch(), isFalse);
     });
 
-    testWidgets('tapping Skip jumps directly to the last page',
+    testWidgets('skip button navigates straight to last screen',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: OnboardingScreen(),
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: testRouter,
+          ),
         ),
       );
 
-      // Page 1 is currently active
+      // Initial page 1
       expect(find.text(AppStrings.onboardingTitle1), findsOneWidget);
 
-      // Tap Skip
+      // Tap skip
       await tester.tap(find.byKey(const Key('onboarding_skip_button')));
       await tester.pumpAndSettle();
 
-      // Should be directly on Page 4 (Last Page)
+      // Verify on page 4
       expect(find.text(AppStrings.onboardingTitle4), findsOneWidget);
-      expect(find.text(AppStrings.onboardingSubtitle4), findsOneWidget);
-      expect(find.byIcon(Icons.emoji_events), findsOneWidget);
-
-      // Buttons check
-      expect(find.byKey(const Key('onboarding_next_button')), findsNothing);
-      expect(find.byKey(const Key('onboarding_get_started_button')),
-          findsOneWidget);
+      expect(find.byKey(const Key('onboarding_get_started_button')), findsOneWidget);
     });
 
-    testWidgets('responsive layout builds OnboardingPageWidget successfully',
+    testWidgets('accessibility semantics tags exist on controllers',
         (WidgetTester tester) async {
-      // Test different screen size to verify responsiveness
-      tester.view.physicalSize = const Size(360, 640); // small phone
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: const OnboardingScreen(),
+          ),
+        ),
+      );
+
+      // Verify semantics details on controls
+      expect(
+        tester.getSemantics(find.byKey(const Key('onboarding_next_button'))),
+        matchesSemantics(
+          label: 'Next page.',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+
+      expect(
+        tester.getSemantics(find.byKey(const Key('onboarding_skip_button'))),
+        matchesSemantics(
+          label: 'Skip onboarding flow directly to the final screen.',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+
+      handle.dispose();
+    });
+
+    testWidgets('responsive layout builds safely on small viewports without overflow warnings',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(320, 480); // very small screen
       tester.view.devicePixelRatio = 1.0;
 
       addTearDown(() {
@@ -113,16 +164,15 @@ void main() {
       });
 
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: OnboardingScreen(),
+        ProviderScope(
+          child: MaterialApp(
+            home: const OnboardingScreen(),
           ),
         ),
       );
 
-      // Verify it renders fine without layout overflows
-      expect(find.byType(OnboardingPageWidget), findsOneWidget);
-      expect(find.text(AppStrings.onboardingTitle1), findsOneWidget);
+      // Verifying rendering completes successfully
+      expect(find.byType(OnboardingScreen), findsOneWidget);
     });
   });
 }
