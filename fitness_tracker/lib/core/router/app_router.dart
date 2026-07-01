@@ -4,6 +4,7 @@ import '../constants/app_routes.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/onboarding/presentation/pages/onboarding_screen.dart';
 import '../../features/profile/presentation/pages/profile_wizard_screen.dart';
+import '../../features/dashboard/presentation/pages/dashboard_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
@@ -18,7 +19,7 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.dashboard,
-      builder: (context, state) => const PlaceholderScreen(title: 'Dashboard'),
+      builder: (context, state) => const DashboardScreen(),
     ),
     GoRoute(
       path: AppRoutes.history,

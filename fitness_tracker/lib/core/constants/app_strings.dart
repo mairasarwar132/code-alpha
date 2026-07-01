@@ -21,4 +21,23 @@ class AppStrings {
   static const onboardingSkip = 'Skip';
   static const onboardingNext = 'Next';
   static const onboardingGetStarted = 'Get Started';
+
+  // Dashboard Strings
+  static const dashboardTitle = 'FitTrack Pro';
+  static const dashboardGreetingMorning = 'Good Morning';
+  static const dashboardGreetingAfternoon = 'Good Afternoon';
+  static const dashboardGreetingEvening = 'Good Evening';
+  static const dashboardSteps = 'Steps';
+  static const dashboardCalories = 'Calories';
+  static const dashboardDistance = 'Distance';
+  static const dashboardActiveMinutes = 'Active Min';
+  static const dashboardDailyGoal = 'Daily Goal';
+  static const dashboardTodaysActivities = "Today's Activities";
+  static const dashboardNoActivities = 'No activities today';
+  static const dashboardNoActivitiesSubtitle = 'Tap + to log your first workout';
+  static const dashboardAddActivity = 'Add Activity';
+  static const dashboardViewHistory = 'History';
+  static const dashboardEditProfile = 'Profile';
+  static const dashboardStepsRemaining = 'steps remaining';
+  static const dashboardGoalComplete = 'Goal complete! 🎉';
 }
