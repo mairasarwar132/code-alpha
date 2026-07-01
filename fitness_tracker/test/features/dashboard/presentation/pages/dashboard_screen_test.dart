@@ -9,7 +9,6 @@ import 'package:fitness_tracker/core/providers/repository_providers.dart';
 import 'package:fitness_tracker/features/activity/domain/repositories/activity_repository.dart';
 import 'package:fitness_tracker/features/profile/domain/repositories/profile_repository.dart';
 import 'package:fitness_tracker/features/dashboard/presentation/pages/dashboard_screen.dart';
-import 'package:fitness_tracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:fitness_tracker/features/dashboard/presentation/widgets/activity_list_tile.dart';
 
 // ---------------------------------------------------------------------------
@@ -73,15 +72,6 @@ ActivitiesTableData _activity({
 }
 
 Widget _buildScreen({List<ActivitiesTableData> activities = const []}) {
-  final dashboardStats = DashboardStats(
-    totalSteps: 12000,
-    totalCalories: 500,
-    totalDistanceKm: 8.5,
-    totalActiveMinutes: 90,
-    activities: activities,
-    dailyStepGoal: 10000,
-  );
-
   final router = GoRouter(
     initialLocation: AppRoutes.dashboard,
     routes: [
@@ -107,20 +97,31 @@ Widget _buildScreen({List<ActivitiesTableData> activities = const []}) {
 
   return ProviderScope(
     overrides: [
-      dashboardStatsProvider.overrideWith(
-        (ref) => Future.value(dashboardStats),
-      ),
       activityRepositoryProvider.overrideWithValue(
         _FakeActivityRepository(activities),
       ),
       profileRepositoryProvider.overrideWithValue(_FakeProfileRepository()),
     ],
-    child: MaterialApp.router(routerConfig: router),
+    child: MediaQuery(
+      data: const MediaQueryData(size: Size(800, 2400)),
+      child: MaterialApp.router(routerConfig: router),
+    ),
   );
 }
 
 Finder _dashboardKey(String value) =>
     find.byKey(Key(value), skipOffstage: false);
+
+Future<void> _pumpDashboardScreen(
+  WidgetTester tester, {
+  List<ActivitiesTableData> activities = const [],
+}) async {
+  await tester.pumpWidget(_buildScreen(activities: activities));
+  await tester.pump();
+  await tester.pump();
+  await tester.drag(find.byType(CustomScrollView), const Offset(0, -3000));
+  await tester.pumpAndSettle();
+}
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -136,8 +137,7 @@ void main() {
     });
 
     testWidgets('renders stat cards after data loads', (tester) async {
-      await tester.pumpWidget(_buildScreen());
-      await tester.pumpAndSettle();
+      await _pumpDashboardScreen(tester);
 
       expect(find.byKey(const Key('stat_steps')), findsOneWidget);
       expect(find.byKey(const Key('stat_calories')), findsOneWidget);
@@ -146,8 +146,7 @@ void main() {
     });
 
     testWidgets('renders goal progress card', (tester) async {
-      await tester.pumpWidget(_buildScreen());
-      await tester.pumpAndSettle();
+      await _pumpDashboardScreen(tester);
 
       expect(_dashboardKey('goal_progress_card'), findsOneWidget);
       expect(find.text(AppStrings.dashboardDailyGoal), findsOneWidget);
@@ -156,31 +155,27 @@ void main() {
     testWidgets('shows empty activities state when no activities logged', (
       tester,
     ) async {
-      await tester.pumpWidget(_buildScreen(activities: []));
-      await tester.pumpAndSettle();
+      await _pumpDashboardScreen(tester, activities: []);
 
       expect(_dashboardKey('empty_activities_state'), findsOneWidget);
       expect(find.text(AppStrings.dashboardNoActivities), findsOneWidget);
     });
 
     testWidgets('shows activities list when activities exist', (tester) async {
-      await tester.pumpWidget(
-        _buildScreen(
-          activities: [
-            _activity(id: 1, type: 'Running', steps: 3000),
-            _activity(id: 2, type: 'Cycling', steps: 2000),
-          ],
-        ),
+      await _pumpDashboardScreen(
+        tester,
+        activities: [
+          _activity(id: 1, type: 'Running', steps: 3000),
+          _activity(id: 2, type: 'Cycling', steps: 2000),
+        ],
       );
-      await tester.pumpAndSettle();
 
       expect(_dashboardKey('activities_list'), findsOneWidget);
       expect(find.byType(ActivityListTile), findsNWidgets(2));
     });
 
     testWidgets('renders quick action buttons', (tester) async {
-      await tester.pumpWidget(_buildScreen());
-      await tester.pumpAndSettle();
+      await _pumpDashboardScreen(tester);
 
       expect(_dashboardKey('btn_add_activity'), findsOneWidget);
       expect(_dashboardKey('btn_view_history'), findsOneWidget);
@@ -190,8 +185,7 @@ void main() {
     testWidgets('tapping history button navigates to history screen', (
       tester,
     ) async {
-      await tester.pumpWidget(_buildScreen());
-      await tester.pumpAndSettle();
+      await _pumpDashboardScreen(tester);
 
       await tester.tap(_dashboardKey('btn_view_history'));
       await tester.pumpAndSettle();
@@ -202,8 +196,7 @@ void main() {
     testWidgets('tapping profile button navigates to profile screen', (
       tester,
     ) async {
-      await tester.pumpWidget(_buildScreen());
-      await tester.pumpAndSettle();
+      await _pumpDashboardScreen(tester);
 
       await tester.tap(_dashboardKey('btn_edit_profile'));
       await tester.pumpAndSettle();
@@ -214,10 +207,10 @@ void main() {
     testWidgets(
       'step count and calories are displayed in stats after loading',
       (tester) async {
-        await tester.pumpWidget(
-          _buildScreen(activities: [_activity(steps: 5000, calories: 400)]),
+        await _pumpDashboardScreen(
+          tester,
+          activities: [_activity(steps: 5000, calories: 400)],
         );
-        await tester.pumpAndSettle();
 
         // Steps formatted as "5k"
         expect(find.text('5k'), findsWidgets);
