@@ -7,7 +7,7 @@ import 'package:fitness_tracker/features/activity/domain/repositories/activity_r
 /// Contains no business logic – only data-access concerns.
 class ActivityRepositoryImpl implements ActivityRepository {
   const ActivityRepositoryImpl({required AppDatabase database})
-      : _database = database;
+    : _database = database;
 
   final AppDatabase _database;
 
@@ -37,6 +37,13 @@ class ActivityRepositoryImpl implements ActivityRepository {
         entry.steps.value,
         'steps',
         'steps must be >= 0',
+      );
+    }
+    if (entry.distance.present && entry.distance.value < 0) {
+      throw ArgumentError.value(
+        entry.distance.value,
+        'distance',
+        'distance must be >= 0',
       );
     }
   }
@@ -70,6 +77,5 @@ class ActivityRepositoryImpl implements ActivityRepository {
   Future<List<ActivitiesTableData>> getActivitiesByDateRange(
     DateTime start,
     DateTime end,
-  ) =>
-      _database.getActivitiesByDateRange(start, end);
+  ) => _database.getActivitiesByDateRange(start, end);
 }

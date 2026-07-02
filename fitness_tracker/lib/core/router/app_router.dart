@@ -5,6 +5,9 @@ import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/onboarding/presentation/pages/onboarding_screen.dart';
 import '../../features/profile/presentation/pages/profile_wizard_screen.dart';
 import '../../features/dashboard/presentation/pages/dashboard_screen.dart';
+import '../../features/activity/presentation/pages/activity_form_page.dart';
+import '../../features/activity/presentation/pages/activity_history_page.dart';
+import '../../features/activity/presentation/pages/activity_details_page.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
@@ -23,7 +26,7 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.history,
-      builder: (context, state) => const PlaceholderScreen(title: 'History'),
+      builder: (context, state) => const ActivityHistoryPage(),
     ),
     GoRoute(
       path: AppRoutes.statistics,
@@ -35,7 +38,21 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.addActivity,
-      builder: (context, state) => const PlaceholderScreen(title: 'Add Activity'),
+      builder: (context, state) => const ActivityFormPage(),
+    ),
+    GoRoute(
+      path: '${AppRoutes.history}/:id',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '');
+        return ActivityDetailsPage(activityId: id ?? 0);
+      },
+    ),
+    GoRoute(
+      path: '/edit-activity/:id',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '');
+        return ActivityFormPage(activityId: id);
+      },
     ),
   ],
 );

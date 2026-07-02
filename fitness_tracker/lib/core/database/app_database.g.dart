@@ -65,6 +65,18 @@ class $ActivitiesTableTable extends ActivitiesTable
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _distanceMeta = const VerificationMeta(
+    'distance',
+  );
+  @override
+  late final GeneratedColumn<double> distance = GeneratedColumn<double>(
+    'distance',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -115,6 +127,7 @@ class $ActivitiesTableTable extends ActivitiesTable
     duration,
     calories,
     steps,
+    distance,
     notes,
     activityDateTime,
     createdAt,
@@ -166,6 +179,12 @@ class $ActivitiesTableTable extends ActivitiesTable
       context.handle(
         _stepsMeta,
         steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta),
+      );
+    }
+    if (data.containsKey('distance')) {
+      context.handle(
+        _distanceMeta,
+        distance.isAcceptableOrUnknown(data['distance']!, _distanceMeta),
       );
     }
     if (data.containsKey('notes')) {
@@ -230,6 +249,10 @@ class $ActivitiesTableTable extends ActivitiesTable
         DriftSqlType.int,
         data['${effectivePrefix}steps'],
       )!,
+      distance: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}distance'],
+      )!,
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -264,6 +287,7 @@ class ActivitiesTableData extends DataClass
   final int duration;
   final int calories;
   final int steps;
+  final double distance;
   final String? notes;
   final DateTime activityDateTime;
   final DateTime createdAt;
@@ -274,6 +298,7 @@ class ActivitiesTableData extends DataClass
     required this.duration,
     required this.calories,
     required this.steps,
+    this.distance = 0.0,
     this.notes,
     required this.activityDateTime,
     required this.createdAt,
@@ -287,6 +312,7 @@ class ActivitiesTableData extends DataClass
     map['duration'] = Variable<int>(duration);
     map['calories'] = Variable<int>(calories);
     map['steps'] = Variable<int>(steps);
+    map['distance'] = Variable<double>(distance);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -303,6 +329,7 @@ class ActivitiesTableData extends DataClass
       duration: Value(duration),
       calories: Value(calories),
       steps: Value(steps),
+      distance: Value(distance),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -323,6 +350,7 @@ class ActivitiesTableData extends DataClass
       duration: serializer.fromJson<int>(json['duration']),
       calories: serializer.fromJson<int>(json['calories']),
       steps: serializer.fromJson<int>(json['steps']),
+      distance: serializer.fromJson<double>(json['distance']),
       notes: serializer.fromJson<String?>(json['notes']),
       activityDateTime: serializer.fromJson<DateTime>(json['activityDateTime']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -338,6 +366,7 @@ class ActivitiesTableData extends DataClass
       'duration': serializer.toJson<int>(duration),
       'calories': serializer.toJson<int>(calories),
       'steps': serializer.toJson<int>(steps),
+      'distance': serializer.toJson<double>(distance),
       'notes': serializer.toJson<String?>(notes),
       'activityDateTime': serializer.toJson<DateTime>(activityDateTime),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -351,6 +380,7 @@ class ActivitiesTableData extends DataClass
     int? duration,
     int? calories,
     int? steps,
+    double? distance,
     Value<String?> notes = const Value.absent(),
     DateTime? activityDateTime,
     DateTime? createdAt,
@@ -361,6 +391,7 @@ class ActivitiesTableData extends DataClass
     duration: duration ?? this.duration,
     calories: calories ?? this.calories,
     steps: steps ?? this.steps,
+    distance: distance ?? this.distance,
     notes: notes.present ? notes.value : this.notes,
     activityDateTime: activityDateTime ?? this.activityDateTime,
     createdAt: createdAt ?? this.createdAt,
@@ -375,6 +406,7 @@ class ActivitiesTableData extends DataClass
       duration: data.duration.present ? data.duration.value : this.duration,
       calories: data.calories.present ? data.calories.value : this.calories,
       steps: data.steps.present ? data.steps.value : this.steps,
+      distance: data.distance.present ? data.distance.value : this.distance,
       notes: data.notes.present ? data.notes.value : this.notes,
       activityDateTime: data.activityDateTime.present
           ? data.activityDateTime.value
@@ -392,6 +424,7 @@ class ActivitiesTableData extends DataClass
           ..write('duration: $duration, ')
           ..write('calories: $calories, ')
           ..write('steps: $steps, ')
+          ..write('distance: $distance, ')
           ..write('notes: $notes, ')
           ..write('activityDateTime: $activityDateTime, ')
           ..write('createdAt: $createdAt, ')
@@ -407,6 +440,7 @@ class ActivitiesTableData extends DataClass
     duration,
     calories,
     steps,
+    distance,
     notes,
     activityDateTime,
     createdAt,
@@ -421,6 +455,7 @@ class ActivitiesTableData extends DataClass
           other.duration == this.duration &&
           other.calories == this.calories &&
           other.steps == this.steps &&
+          other.distance == this.distance &&
           other.notes == this.notes &&
           other.activityDateTime == this.activityDateTime &&
           other.createdAt == this.createdAt &&
@@ -433,6 +468,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
   final Value<int> duration;
   final Value<int> calories;
   final Value<int> steps;
+  final Value<double> distance;
   final Value<String?> notes;
   final Value<DateTime> activityDateTime;
   final Value<DateTime> createdAt;
@@ -443,6 +479,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
     this.duration = const Value.absent(),
     this.calories = const Value.absent(),
     this.steps = const Value.absent(),
+    this.distance = const Value.absent(),
     this.notes = const Value.absent(),
     this.activityDateTime = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -454,6 +491,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
     required int duration,
     required int calories,
     this.steps = const Value.absent(),
+    this.distance = const Value.absent(),
     this.notes = const Value.absent(),
     required DateTime activityDateTime,
     required DateTime createdAt,
@@ -470,6 +508,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
     Expression<int>? duration,
     Expression<int>? calories,
     Expression<int>? steps,
+    Expression<double>? distance,
     Expression<String>? notes,
     Expression<DateTime>? activityDateTime,
     Expression<DateTime>? createdAt,
@@ -481,6 +520,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
       if (duration != null) 'duration': duration,
       if (calories != null) 'calories': calories,
       if (steps != null) 'steps': steps,
+      if (distance != null) 'distance': distance,
       if (notes != null) 'notes': notes,
       if (activityDateTime != null) 'activity_date_time': activityDateTime,
       if (createdAt != null) 'created_at': createdAt,
@@ -494,6 +534,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
     Value<int>? duration,
     Value<int>? calories,
     Value<int>? steps,
+    Value<double>? distance,
     Value<String?>? notes,
     Value<DateTime>? activityDateTime,
     Value<DateTime>? createdAt,
@@ -505,6 +546,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
       duration: duration ?? this.duration,
       calories: calories ?? this.calories,
       steps: steps ?? this.steps,
+      distance: distance ?? this.distance,
       notes: notes ?? this.notes,
       activityDateTime: activityDateTime ?? this.activityDateTime,
       createdAt: createdAt ?? this.createdAt,
@@ -530,6 +572,9 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
     if (steps.present) {
       map['steps'] = Variable<int>(steps.value);
     }
+    if (distance.present) {
+      map['distance'] = Variable<double>(distance.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -553,6 +598,7 @@ class ActivitiesTableCompanion extends UpdateCompanion<ActivitiesTableData> {
           ..write('duration: $duration, ')
           ..write('calories: $calories, ')
           ..write('steps: $steps, ')
+          ..write('distance: $distance, ')
           ..write('notes: $notes, ')
           ..write('activityDateTime: $activityDateTime, ')
           ..write('createdAt: $createdAt, ')

@@ -18,6 +18,8 @@ class ActivitiesTable extends Table {
 
   IntColumn get steps => integer().withDefault(const Constant(0))();
 
+  RealColumn get distance => real().withDefault(const Constant(0.0))();
+
   TextColumn get notes => text().nullable()();
 
   DateTimeColumn get activityDateTime => dateTime()();
